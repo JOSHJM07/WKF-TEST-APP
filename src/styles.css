@@ -148,6 +148,25 @@ body {
   gap: 8px;
 }
 
+.feedback {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+}
+
+.feedback.correct {
+  border-color: #2d8f5b;
+  background: rgba(67, 196, 126, 0.12);
+}
+
+.feedback.incorrect {
+  border-color: #bb4f5d;
+  background: rgba(239, 93, 111, 0.12);
+}
+
 .score {
   font-size: 2.25rem;
   font-weight: 800;
@@ -158,6 +177,13 @@ body {
   margin: 10px 2px 0;
   color: #ff8f9d;
   font-size: 0.9rem;
+}
+
+.footer {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--muted);
 }
 
 @media (min-width: 540px) {

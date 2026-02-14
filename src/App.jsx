@@ -26,6 +26,7 @@ export default function App() {
   const [answers, setAnswers] = useState([]);
   const [current, setCurrent] = useState(0);
   const [result, setResult] = useState(null);
+  const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -84,6 +85,7 @@ export default function App() {
     setAnswers([]);
     setCurrent(0);
     setResult(null);
+    setFeedback(null);
     setStatus("exam");
     setError("");
   };
@@ -121,23 +123,8 @@ export default function App() {
     }
   };
 
-  const answerQuestion = async (selected) => {
-    const q = examQuestions[current];
-    const answer = {
-      questionId: q.id || null,
-      selected,
-      isCorrect: selected === q.correct_answer
-    };
-
-    const nextAnswers = [...answers, answer];
-
-    if (current + 1 < examQuestions.length) {
-      setAnswers(nextAnswers);
-      setCurrent((prev) => prev + 1);
-      return;
-    }
-
-    const correctCount = nextAnswers.filter((a) => a.isCorrect).length;
+  const finishExam = async (finalAnswers) => {
+    const correctCount = finalAnswers.filter((a) => a.isCorrect).length;
     const totalQuestions = examQuestions.length;
     const scorePercent = Math.round((correctCount / totalQuestions) * 100);
 
@@ -148,12 +135,47 @@ export default function App() {
       attemptNumber: attemptCount + 1
     };
 
-    setAnswers(nextAnswers);
     setResult(summary);
     setAttemptCount((prev) => prev + 1);
     setStatus("result");
+    setFeedback(null);
 
-    await persistAttempt(nextAnswers, summary);
+    await persistAttempt(finalAnswers, summary);
+  };
+
+  const answerQuestion = (selected) => {
+    if (feedback) {
+      return;
+    }
+
+    const q = examQuestions[current];
+    const answer = {
+      questionId: q.id || null,
+      selected,
+      isCorrect: selected === q.correct_answer
+    };
+
+    const nextAnswers = [...answers, answer];
+    setAnswers(nextAnswers);
+    setFeedback({
+      selected,
+      isCorrect: answer.isCorrect,
+      correctAnswer: q.correct_answer
+    });
+  };
+
+  const goNext = async () => {
+    if (!feedback) {
+      return;
+    }
+
+    if (current + 1 < examQuestions.length) {
+      setCurrent((prev) => prev + 1);
+      setFeedback(null);
+      return;
+    }
+
+    await finishExam(answers);
   };
 
   return (
@@ -180,6 +202,9 @@ export default function App() {
           index={current}
           total={examQuestions.length}
           onAnswer={answerQuestion}
+          feedback={feedback}
+          onNext={goNext}
+          isLastQuestion={current + 1 === examQuestions.length}
         />
       )}
 
@@ -191,6 +216,8 @@ export default function App() {
       )}
 
       {error && <p className="error">{error}</p>}
+
+      <footer className="footer">Copyright © Joshua Jara</footer>
     </main>
   );
 }

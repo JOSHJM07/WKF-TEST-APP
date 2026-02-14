@@ -1,4 +1,4 @@
-﻿export default function ExamRunner({ question, index, total, onAnswer }) {
+﻿export default function ExamRunner({ question, index, total, onAnswer, feedback, onNext, isLastQuestion }) {
   return (
     <section className="card">
       <div className="card-head">
@@ -14,15 +14,27 @@
       <article className="question">{question.statement}</article>
 
       <div className="actions">
-        <button type="button" className="btn btn-success" onClick={() => onAnswer(true)}>
+        <button type="button" className="btn btn-success" onClick={() => onAnswer(true)} disabled={Boolean(feedback)}>
           <i className="bi bi-check2-circle" />
           Verdadero
         </button>
-        <button type="button" className="btn btn-danger" onClick={() => onAnswer(false)}>
+        <button type="button" className="btn btn-danger" onClick={() => onAnswer(false)} disabled={Boolean(feedback)}>
           <i className="bi bi-x-circle" />
           Falso
         </button>
       </div>
+
+      {feedback && (
+        <>
+          <div className={`feedback ${feedback.isCorrect ? "correct" : "incorrect"}`}>
+            {feedback.isCorrect ? "Respuesta correcta." : "Respuesta incorrecta."} Correcta: <strong>{feedback.correctAnswer ? "Verdadero" : "Falso"}</strong>
+          </div>
+          <button type="button" className="btn btn-primary" onClick={onNext}>
+            <i className={`bi ${isLastQuestion ? "bi-flag-fill" : "bi-arrow-right-circle"}`} />
+            {isLastQuestion ? "Ver resultado" : "Siguiente pregunta"}
+          </button>
+        </>
+      )}
     </section>
   );
 }
